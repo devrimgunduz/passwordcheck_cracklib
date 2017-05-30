@@ -23,6 +23,9 @@
 #include "commands/user.h"
 #include "libpq/crypt.h"
 #include "fmgr.h"
+#if PG_VERSION_NUM < 100000
+#include "libpq/md5.h"
+#endif
 
 PG_MODULE_MAGIC;
 
