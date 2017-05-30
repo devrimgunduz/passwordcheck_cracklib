@@ -48,83 +48,175 @@ extern void _PG_init(void);
  * expiration time, but you might wish to insist that it be non-null and
  * not too far in the future.
  */
-static void
-check_password(const char *username,
-			   const char *shadow_pass,
-			   PasswordType password_type,
-			   Datum validuntil_time,
-			   bool validuntil_null)
-{
-	if (password_type != PASSWORD_TYPE_PLAINTEXT)
-	{
-		/*
-		 * Unfortunately we cannot perform exhaustive checks on encrypted
-		 * passwords - we are restricted to guessing. (Alternatively, we could
-		 * insist on the password being presented non-encrypted, but that has
-		 * its own security disadvantages.)
-		 *
-		 * We only check for username = password.
-		 */
-		char	   *logdetail;
 
-		if (plain_crypt_verify(username, shadow_pass, username, &logdetail) == STATUS_OK)
-			ereport(ERROR,
-					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password must not contain user name")));
-	}
-	else
+#if PG_VERSION_NUM >= 100000
+	static void
+	check_password(const char *username,
+				   const char *shadow_pass,
+				   PasswordType password_type,
+				   Datum validuntil_time,
+				   bool validuntil_null)
 	{
-		/*
-		 * For unencrypted passwords we can perform better checks
-		 */
-		const char *password = shadow_pass;
+		if (password_type != PASSWORD_TYPE_PLAINTEXT)
+		{
+			/*
+			 * Unfortunately we cannot perform exhaustive checks on encrypted
+			 * passwords - we are restricted to guessing. (Alternatively, we could
+			 * insist on the password being presented non-encrypted, but that has
+			 * its own security disadvantages.)
+			 *
+			 * We only check for username = password.
+			 */
+			char	   *logdetail;
+
+			if (plain_crypt_verify(username, shadow_pass, username, &logdetail) == STATUS_OK)
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+						 errmsg("password must not contain user name")));
+		}
+		else
+		{
+			/*
+			 * For unencrypted passwords we can perform better checks
+			 */
+			const char *password = shadow_pass;
+			int			pwdlen = strlen(password);
+			int			i;
+			bool		pwd_has_letter,
+						pwd_has_nonletter;
+
+			/* enforce minimum length */
+			if (pwdlen < MIN_PWD_LENGTH)
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+						 errmsg("password is too short")));
+
+			/* check if the password contains the username */
+			if (strstr(password, username))
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+					 errmsg("password must not contain user name")));
+
+			/* check if the password contains both letters and non-letters */
+			pwd_has_letter = false;
+			pwd_has_nonletter = false;
+			for (i = 0; i < pwdlen; i++)
+			{
+				/*
+				 * isalpha() does not work for multibyte encodings but let's
+				 * consider non-ASCII characters non-letters
+				 */
+				if (isalpha((unsigned char) password[i]))
+					pwd_has_letter = true;
+				else
+					pwd_has_nonletter = true;
+			}
+			if (!pwd_has_letter || !pwd_has_nonletter)
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+				   errmsg("password must contain both letters and nonletters")));
+
+	#ifdef USE_CRACKLIB
+			/* call cracklib to check password */
+			if (FascistCheck(password, CRACKLIB_DICTPATH))
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+						 errmsg("password is easily cracked")));
+	#endif
+		}
+
+		/* all checks passed, password is ok */
+	}
+#else
+	static void
+	check_password(const char *username,
+				   const char *password,
+				   int password_type,
+				   Datum validuntil_time,
+				   bool validuntil_null)
+	{
+		int			namelen = strlen(username);
 		int			pwdlen = strlen(password);
+		char		encrypted[MD5_PASSWD_LEN + 1];
 		int			i;
 		bool		pwd_has_letter,
 					pwd_has_nonletter;
 
-		/* enforce minimum length */
-		if (pwdlen < MIN_PWD_LENGTH)
-			ereport(ERROR,
-					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password is too short")));
-
-		/* check if the password contains the username */
-		if (strstr(password, username))
-			ereport(ERROR,
-					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password must not contain user name")));
-
-		/* check if the password contains both letters and non-letters */
-		pwd_has_letter = false;
-		pwd_has_nonletter = false;
-		for (i = 0; i < pwdlen; i++)
+		switch (password_type)
 		{
-			/*
-			 * isalpha() does not work for multibyte encodings but let's
-			 * consider non-ASCII characters non-letters
-			 */
-			if (isalpha((unsigned char) password[i]))
-				pwd_has_letter = true;
-			else
-				pwd_has_nonletter = true;
-		}
-		if (!pwd_has_letter || !pwd_has_nonletter)
-			ereport(ERROR,
-					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-			   errmsg("password must contain both letters and nonletters")));
+			case PASSWORD_TYPE_MD5:
 
-#ifdef USE_CRACKLIB
-		/* call cracklib to check password */
-		if (FascistCheck(password, CRACKLIB_DICTPATH))
-			ereport(ERROR,
-					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-					 errmsg("password is easily cracked")));
-#endif
+				/*
+				 * Unfortunately we cannot perform exhaustive checks on encrypted
+				 * passwords - we are restricted to guessing. (Alternatively, we
+				 * could insist on the password being presented non-encrypted, but
+				 * that has its own security disadvantages.)
+				 *
+				 * We only check for username = password.
+				 */
+				if (!pg_md5_encrypt(username, username, namelen, encrypted))
+					elog(ERROR, "password encryption failed");
+				if (strcmp(password, encrypted) == 0)
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+							 errmsg("password must not contain user name")));
+				break;
+
+			case PASSWORD_TYPE_PLAINTEXT:
+
+				/*
+				 * For unencrypted passwords we can perform better checks
+				 */
+
+				/* enforce minimum length */
+				if (pwdlen < MIN_PWD_LENGTH)
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+							 errmsg("password is too short")));
+
+				/* check if the password contains the username */
+				if (strstr(password, username))
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+							 errmsg("password must not contain user name")));
+
+				/* check if the password contains both letters and non-letters */
+				pwd_has_letter = false;
+				pwd_has_nonletter = false;
+				for (i = 0; i < pwdlen; i++)
+				{
+					/*
+					 * isalpha() does not work for multibyte encodings but let's
+					 * consider non-ASCII characters non-letters
+					 */
+					if (isalpha((unsigned char) password[i]))
+						pwd_has_letter = true;
+					else
+						pwd_has_nonletter = true;
+				}
+				if (!pwd_has_letter || !pwd_has_nonletter)
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+					errmsg("password must contain both letters and nonletters")));
+
+	#ifdef USE_CRACKLIB
+				/* call cracklib to check password */
+				if (FascistCheck(password, CRACKLIB_DICTPATH))
+					ereport(ERROR,
+							(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+							 errmsg("password is easily cracked")));
+	#endif
+				break;
+
+			default:
+				elog(ERROR, "unrecognized password type: %d", password_type);
+				break;
+		}
+
+		/* all checks passed, password is ok */
 	}
 
-	/* all checks passed, password is ok */
-}
+#endif
 
 /*
  * Module initialization function
