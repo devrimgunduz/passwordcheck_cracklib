@@ -21,7 +21,7 @@ yum install passswordcheck_cracklib96 (for PostgreSQL 9.6)
 yum install passswordcheck_cracklib95 (for PostgreSQL 9.5)
 yum install passswordcheck_cracklib94 (for PostgreSQL 9.4)
 ```
-Please replace yum with dnf on Fedora.
+Please replace yum with `dnf` on Fedora.
 
 
 Installing by compiling source code
@@ -55,6 +55,9 @@ followed by the
 USE_PGXS=1 make
 USE_PGXS=1 make install
 ```
+
+`pg_config` is usually under `/usr/pgsql-10/bin/pg_config` on 
+RHEL/CentOS/Fedora. Replace 10 with your major PostgreSQL version.
 
 Using the module
 ----------------
