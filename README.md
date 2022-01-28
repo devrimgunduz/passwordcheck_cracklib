@@ -9,20 +9,20 @@ set with `CREATE ROLE` or `ALTER ROLE`. If a password is considered too
 weak, it will be rejected and the command will terminate with an error. 
 
 
-Installing with YUM
--------------------
+Installing with YUM/DNF/Zypper
+------------------------------
 
-If you are already using PostgreSQL YUM repository, you can install it 
+If you are already using PostgreSQL RPM repository, you can install it 
 via
 
 ```
-yum install passswordcheck_cracklib_14 (for PostgreSQL 14)
-yum install passswordcheck_cracklib_13 (for PostgreSQL 13)
-yum install passswordcheck_cracklib_12 (for PostgreSQL 12)
-yum install passswordcheck_cracklib_11 (for PostgreSQL 11)
-yum install passswordcheck_cracklib_10 (for PostgreSQL 10)
+dnf install passswordcheck_cracklib_14 (for PostgreSQL 14)
+dnf install passswordcheck_cracklib_13 (for PostgreSQL 13)
+dnf install passswordcheck_cracklib_12 (for PostgreSQL 12)
+dnf install passswordcheck_cracklib_11 (for PostgreSQL 11)
+dnf install passswordcheck_cracklib_10 (for PostgreSQL 10)
 ```
-Please replace yum with `dnf` on Fedora and RHEL 8+.
+Please replace yum with `yum` on RHEL 7 and with `zypper` on SLES 15 and 12.
 
 
 Installing by compiling source code
