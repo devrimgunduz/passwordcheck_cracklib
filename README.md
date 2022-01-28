@@ -16,12 +16,13 @@ If you are already using PostgreSQL YUM repository, you can install it
 via
 
 ```
-yum install passswordcheck_cracklib10 (for PostgreSQL 10)
-yum install passswordcheck_cracklib96 (for PostgreSQL 9.6)
-yum install passswordcheck_cracklib95 (for PostgreSQL 9.5)
-yum install passswordcheck_cracklib94 (for PostgreSQL 9.4)
+yum install passswordcheck_cracklib_14 (for PostgreSQL 14)
+yum install passswordcheck_cracklib_13 (for PostgreSQL 13)
+yum install passswordcheck_cracklib_12 (for PostgreSQL 12)
+yum install passswordcheck_cracklib_11 (for PostgreSQL 11)
+yum install passswordcheck_cracklib_10 (for PostgreSQL 10)
 ```
-Please replace yum with `dnf` on Fedora.
+Please replace yum with `dnf` on Fedora and RHEL 8+.
 
 
 Installing by compiling source code
