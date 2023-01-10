@@ -7,7 +7,7 @@ OBJS = \
 PGFILEDESC = "passwordcheck_cracklib - strengthen user password checks"
 
 # uncomment the following two lines to enable cracklib support
-PG_CPPFLAGS = -DUSE_CRACKLIB '-DCRACKLIB_DICTPATH="/usr/lib/cracklib_dict"'
+PG_CPPFLAGS = -DUSE_CRACKLIB '-DCRACKLIB_DICTPATH="/usr/lib64/cracklib_dict"'
 SHLIB_LINK = -lcrack
 
 REGRESS = passwordcheck_cracklib
