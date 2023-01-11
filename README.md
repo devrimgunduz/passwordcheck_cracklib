@@ -16,11 +16,12 @@ If you are already using PostgreSQL RPM repository, you can install it
 via
 
 ```
+dnf install passswordcheck_cracklib_15 (for PostgreSQL 15)
 dnf install passswordcheck_cracklib_14 (for PostgreSQL 14)
 dnf install passswordcheck_cracklib_13 (for PostgreSQL 13)
 dnf install passswordcheck_cracklib_12 (for PostgreSQL 12)
 dnf install passswordcheck_cracklib_11 (for PostgreSQL 11)
-dnf install passswordcheck_cracklib_10 (for PostgreSQL 10)
+
 ```
 Please replace yum with `yum` on RHEL 7 and with `zypper` on SLES 15 and 12.
 
