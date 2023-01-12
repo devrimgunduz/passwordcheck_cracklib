@@ -72,4 +72,4 @@ More information
 
 For more details, please read the manual of the original module:
 
-https://www.postgresql.org/docs/devel/static/passwordcheck.html
+https://www.postgresql.org/docs/current/static/passwordcheck.html
