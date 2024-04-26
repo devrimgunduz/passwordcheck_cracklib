@@ -1,4 +1,4 @@
-passwordcheck_cracklib
+,passwordcheck_cracklib
 ======================
 
 The `passwordcheck_cracklib` is like the regular PostgreSQL passwordcheck 
@@ -16,14 +16,14 @@ If you are already using PostgreSQL RPM repository, you can install it
 via
 
 ```
+dnf install passswordcheck_cracklib_16 (for PostgreSQL 16)
 dnf install passswordcheck_cracklib_15 (for PostgreSQL 15)
 dnf install passswordcheck_cracklib_14 (for PostgreSQL 14)
 dnf install passswordcheck_cracklib_13 (for PostgreSQL 13)
 dnf install passswordcheck_cracklib_12 (for PostgreSQL 12)
-dnf install passswordcheck_cracklib_11 (for PostgreSQL 11)
 
 ```
-Please replace yum with `yum` on RHEL 7 and with `zypper` on SLES 15 and 12.
+Please replace yum with `zypper` on SLES 15.
 
 
 Installing by compiling source code
@@ -58,8 +58,8 @@ USE_PGXS=1 make
 USE_PGXS=1 make install
 ```
 
-`pg_config` is usually under `/usr/pgsql-10/bin/pg_config` on 
-RHEL/CentOS/Fedora. Replace 10 with your major PostgreSQL version.
+`pg_config` is usually under `/usr/pgsql-16/bin/pg_config` on 
+RHEL/Rocky/AlmaLinux/Fedora. Replace 16 with your major PostgreSQL version.
 
 Using the module
 ----------------
