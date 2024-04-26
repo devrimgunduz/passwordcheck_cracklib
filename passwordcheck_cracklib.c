@@ -32,8 +32,10 @@ static check_password_hook_type prev_check_password_hook = NULL;
 /* passwords shorter than this will be rejected */
 #define MIN_PWD_LENGTH 8
 
+#if (PG_VERSION_NUM < 160000)
 extern void _PG_init(void);
 extern void _PG_fini(void);
+#endif
 
 /*
  * check_password
@@ -74,8 +76,11 @@ check_password(const char *username,
 		 *
 		 * We only check for username = password.
 		 */
+		#if (PG_VERSION_NUM < 150000)
 		char	   *logdetail;
-
+		#else
+		const char *logdetail = NULL;
+		#endif
 		if (plain_crypt_verify(username, shadow_pass, username, &logdetail) == STATUS_OK)
 			ereport(ERROR,
 					(errcode(ERRCODE_INVALID_PARAMETER_VALUE),
@@ -150,6 +155,7 @@ _PG_init(void)
 	check_password_hook = check_password;
 }
 
+#if (PG_VERSION_NUM <= 150000)
 /*
  * Module unload function
  */
@@ -159,3 +165,4 @@ _PG_fini(void)
 	/* uninstall hook */
 	check_password_hook = prev_check_password_hook;
 }
+#endif
