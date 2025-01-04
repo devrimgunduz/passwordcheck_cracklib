@@ -9,21 +9,21 @@ set with `CREATE ROLE` or `ALTER ROLE`. If a password is considered too
 weak, it will be rejected and the command will terminate with an error. 
 
 
-Installing with YUM/DNF/Zypper
+Installing with DNF / Zypper
 ------------------------------
 
 If you are already using PostgreSQL RPM repository, you can install it 
 via
 
 ```
+dnf install passswordcheck_cracklib_17 (for PostgreSQL 17)
 dnf install passswordcheck_cracklib_16 (for PostgreSQL 16)
 dnf install passswordcheck_cracklib_15 (for PostgreSQL 15)
 dnf install passswordcheck_cracklib_14 (for PostgreSQL 14)
 dnf install passswordcheck_cracklib_13 (for PostgreSQL 13)
-dnf install passswordcheck_cracklib_12 (for PostgreSQL 12)
 
 ```
-Please replace yum with `zypper` on SLES 15.
+Please replace dnf with `zypper` on SLES 15.
 
 
 Installing by compiling source code
@@ -58,8 +58,8 @@ USE_PGXS=1 make
 USE_PGXS=1 make install
 ```
 
-`pg_config` is usually under `/usr/pgsql-16/bin/pg_config` on 
-RHEL/Rocky/AlmaLinux/Fedora. Replace 16 with your major PostgreSQL version.
+`pg_config` is usually under `/usr/pgsql-17/bin/pg_config` on 
+RHEL/Rocky/AlmaLinux/Fedora. Replace 17 with your major PostgreSQL version.
 
 Using the module
 ----------------
