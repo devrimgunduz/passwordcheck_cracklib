@@ -1,4 +1,4 @@
-,passwordcheck_cracklib
+passwordcheck_cracklib
 ======================
 
 The `passwordcheck_cracklib` is like the regular PostgreSQL passwordcheck 
