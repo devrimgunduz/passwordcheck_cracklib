@@ -16,14 +16,15 @@ If you are already using PostgreSQL RPM repository, you can install it
 via
 
 ```
+dnf install passswordcheck_cracklib_19 (for PostgreSQL 19)
+dnf install passswordcheck_cracklib_18 (for PostgreSQL 18)
 dnf install passswordcheck_cracklib_17 (for PostgreSQL 17)
 dnf install passswordcheck_cracklib_16 (for PostgreSQL 16)
 dnf install passswordcheck_cracklib_15 (for PostgreSQL 15)
 dnf install passswordcheck_cracklib_14 (for PostgreSQL 14)
-dnf install passswordcheck_cracklib_13 (for PostgreSQL 13)
 
 ```
-Please replace dnf with `zypper` on SLES 15.
+Please replace dnf with `zypper` on SLES 16, SLES 15 and OpenSuSE Leap 16.
 
 
 Installing by compiling source code
@@ -58,8 +59,8 @@ USE_PGXS=1 make
 USE_PGXS=1 make install
 ```
 
-`pg_config` is usually under `/usr/pgsql-17/bin/pg_config` on 
-RHEL/Rocky/AlmaLinux/Fedora. Replace 17 with your major PostgreSQL version.
+`pg_config` is usually under `/usr/pgsql-18/bin/pg_config` on
+RHEL/Rocky/AlmaLinux/Fedora. Replace 18 with your major PostgreSQL version.
 
 Using the module
 ----------------
